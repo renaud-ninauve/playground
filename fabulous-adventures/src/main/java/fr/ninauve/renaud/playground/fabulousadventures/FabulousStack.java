@@ -19,11 +19,11 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
         }
         @Override
         public T peek() {
-            return null;
+            throw new UnsupportedOperationException("can't peek an empty stack");
         }
         @Override
         public T pop() {
-            return null;
+            throw new UnsupportedOperationException("can't pop an empty stack");
         }
         @Override
         public boolean isEmpty() {
