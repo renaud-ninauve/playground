@@ -43,6 +43,19 @@ class FabulousStackTest {
             FabulousStack<String> stack = stackOf("A", "B", "C");
             assertThat(stack.stream()).containsExactly("C", "B", "A");
         }
+
+        @Test
+        void peek_should_return_last() {
+            FabulousStack<String> stack = stackOf("A", "B", "C");
+            assertThat(stack.peek()).isEqualTo("C");
+        }
+
+        @Test
+        void pop_should_return_tail() {
+            FabulousStack<String> stack = stackOf("A", "B", "C");
+            assertThat(stack.pop().stream()).containsExactly("B", "A");
+        }
+
         private static FabulousStack<String> stackOf(String... values) {
             FabulousStack<String> stack = newStack();
             for(String value: values) {

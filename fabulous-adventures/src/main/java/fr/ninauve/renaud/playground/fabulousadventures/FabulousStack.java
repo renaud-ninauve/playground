@@ -9,7 +9,7 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
 
     FabulousStack<T> push(T value);
     T peek();
-    T pop();
+    FabulousStack<T> pop();
     boolean isEmpty();
 
     record Empty<T>() implements FabulousStack<T> {
@@ -22,7 +22,7 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
             throw new UnsupportedOperationException("can't peek an empty stack");
         }
         @Override
-        public T pop() {
+        public FabulousStack<T> pop() {
             throw new UnsupportedOperationException("can't pop an empty stack");
         }
         @Override
@@ -43,11 +43,11 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
         }
         @Override
         public T peek() {
-            return null;
+            return value;
         }
         @Override
-        public T pop() {
-            return null;
+        public FabulousStack<T> pop() {
+            return tail;
         }
         @Override
         public boolean isEmpty() {
