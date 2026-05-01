@@ -2,14 +2,13 @@ package fr.ninauve.renaud.playground.fabulousadventures;
 
 import java.util.stream.Stream;
 
-public sealed interface FabulousLinkedList<T> {
+public sealed interface FabulousLinkedList<T> extends Streamable<T> {
     static <T> FabulousLinkedList<T> of(T value) {
         return new NotEmpty<>(value, new Empty<>());
     }
 
     FabulousLinkedList<T> push(T value);
     FabulousLinkedList<T> reverse();
-    Stream<T> stream();
 
     record NotEmpty<T>(T value, FabulousLinkedList<T> tail) implements FabulousLinkedList<T> {
         public FabulousLinkedList<T> push(T value) {
