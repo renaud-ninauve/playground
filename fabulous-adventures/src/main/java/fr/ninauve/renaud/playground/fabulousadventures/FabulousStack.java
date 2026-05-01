@@ -11,6 +11,7 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
     T peek();
     FabulousStack<T> pop();
     boolean isEmpty();
+    FabulousStack<T> reverse();
 
     record Empty<T>() implements FabulousStack<T> {
         @Override
@@ -29,6 +30,11 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
         public boolean isEmpty() {
             return true;
         }
+        @Override
+        public FabulousStack<T> reverse() {
+            return this;
+        }
+
         @Override
         public Stream<T> stream() {
             return Stream.empty();
@@ -53,6 +59,19 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
         public boolean isEmpty() {
             return false;
         }
+        @Override
+        public FabulousStack<T> reverse() {
+            FabulousStack<T> reversed = FabulousStack.newStack();
+            FabulousStack<T> current = this;
+            while(!(current instanceof FabulousStack.Empty<T>)) {
+                if (current instanceof FabulousStack.NotEmpty<T>(T currentValue, FabulousStack<T> currentTail)) {
+                    reversed = reversed.push(currentValue);
+                    current = currentTail;
+                }
+            }
+            return reversed;
+        }
+
         @Override
         public Stream<T> stream() {
             Stream.Builder<T> stream = Stream.builder();

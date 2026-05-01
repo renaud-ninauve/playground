@@ -29,6 +29,12 @@ class FabulousStackTest {
             FabulousStack<String> stack = newStack();
             assertThatThrownBy(stack::peek);
         }
+
+        @Test
+        void reverse_should_return_empty() {
+            FabulousStack<String> stack = newStack();
+            assertThat(stack.reverse().isEmpty()).isTrue();
+        }
     }
 
     @Nested
@@ -54,6 +60,15 @@ class FabulousStackTest {
         void pop_should_return_tail() {
             FabulousStack<String> stack = stackOf("A", "B", "C");
             assertThat(stack.pop().stream()).containsExactly("B", "A");
+        }
+
+        @Test
+        void should_reverse() {
+            FabulousStack<String> stack = stackOf("A", "B", "C");
+            FabulousStack<String> actual = stack.reverse();
+
+            assertThat(actual.stream())
+                    .containsExactly("A", "B", "C");
         }
 
         private static FabulousStack<String> stackOf(String... values) {
