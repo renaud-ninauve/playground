@@ -55,7 +55,15 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
         }
         @Override
         public Stream<T> stream() {
-            return Stream.empty();
+            Stream.Builder<T> stream = Stream.builder();
+            FabulousStack<T> current = this;
+            while(!(current instanceof FabulousStack.Empty<T>)) {
+                if (current instanceof FabulousStack.NotEmpty<T>(T currentValue, FabulousStack<T> currentTail)) {
+                    stream.accept(currentValue);
+                    current = currentTail;
+                }
+            }
+            return stream.build();
         }
     }
 }
