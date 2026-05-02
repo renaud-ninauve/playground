@@ -43,6 +43,14 @@ class FabulousStackTest {
             FabulousStack<String> actual = stack.reverseOnto(ontoTail);
             assertThat(actual).isEqualTo(ontoTail);
         }
+
+        @Test
+        void concatenate_should_return_other() {
+            FabulousStack<String> stack = newStack();
+            FabulousStack<String> other = NotEmpty.stackOf("A", "B", "C");
+            FabulousStack<String> actual = stack.concatenate(other);
+            assertThat(actual).isEqualTo(other);
+        }
     }
 
     @Nested
@@ -85,6 +93,14 @@ class FabulousStackTest {
             FabulousStack<String> ontoTail = NotEmpty.stackOf("D", "E", "F");
             FabulousStack<String> actual = stack.reverseOnto(ontoTail);
             assertThat(actual).isEqualTo(stackOf("D", "E", "F", "C", "B", "A"));
+        }
+
+        @Test
+        void should_concatenate() {
+            FabulousStack<String> stack = stackOf("A", "B", "C");
+            FabulousStack<String> other = NotEmpty.stackOf("D", "E", "F");
+            FabulousStack<String> actual = stack.concatenate(other);
+            assertThat(actual).isEqualTo(stackOf("D", "E", "F", "A", "B", "C"));
         }
 
         private static FabulousStack<String> stackOf(String... values) {

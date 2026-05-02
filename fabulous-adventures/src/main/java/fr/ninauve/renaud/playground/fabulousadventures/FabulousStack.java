@@ -13,6 +13,7 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
     boolean isEmpty();
     FabulousStack<T> reverse();
     FabulousStack<T> reverseOnto(FabulousStack<T> ontoTail);
+    FabulousStack<T> concatenate(FabulousStack<T> other);
 
     record Empty<T>() implements FabulousStack<T> {
         @Override
@@ -38,6 +39,10 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
         @Override
         public FabulousStack<T> reverseOnto(FabulousStack<T> ontoTail) {
             return ontoTail;
+        }
+        @Override
+        public FabulousStack<T> concatenate(FabulousStack<T> other) {
+            return other;
         }
 
         @Override
@@ -77,6 +82,11 @@ public sealed interface FabulousStack<T> extends Streamable<T> {
                 result = result.push(current.peek());
             }
             return result;
+        }
+
+        @Override
+        public FabulousStack<T> concatenate(FabulousStack<T> other) {
+            return this.reverse().reverseOnto(other);
         }
 
         @Override
