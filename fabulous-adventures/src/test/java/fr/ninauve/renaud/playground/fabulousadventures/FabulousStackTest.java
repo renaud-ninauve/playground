@@ -35,6 +35,14 @@ class FabulousStackTest {
             FabulousStack<String> stack = newStack();
             assertThat(stack.reverse().isEmpty()).isTrue();
         }
+
+        @Test
+        void reverseOnto_should_return_ontoTail() {
+            FabulousStack<String> stack = newStack();
+            FabulousStack<String> ontoTail = NotEmpty.stackOf("A", "B", "C");
+            FabulousStack<String> actual = stack.reverseOnto(ontoTail);
+            assertThat(actual).isEqualTo(ontoTail);
+        }
     }
 
     @Nested
@@ -69,6 +77,14 @@ class FabulousStackTest {
 
             assertThat(actual.stream())
                     .containsExactly("A", "B", "C");
+        }
+
+        @Test
+        void should_reverseOnto() {
+            FabulousStack<String> stack = stackOf("A", "B", "C");
+            FabulousStack<String> ontoTail = NotEmpty.stackOf("D", "E", "F");
+            FabulousStack<String> actual = stack.reverseOnto(ontoTail);
+            assertThat(actual).isEqualTo(stackOf("D", "E", "F", "C", "B", "A"));
         }
 
         private static FabulousStack<String> stackOf(String... values) {
