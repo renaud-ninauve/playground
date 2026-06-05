@@ -1,4 +1,4 @@
-package fr.ninauve.renaud.playground.fabulousadventures;
+package fr.ninauve.renaud.playground.fabulousadventures.queues;
 
 import java.util.function.Function;
 import java.util.stream.Stream;

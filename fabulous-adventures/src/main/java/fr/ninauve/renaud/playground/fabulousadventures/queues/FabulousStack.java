@@ -1,6 +1,5 @@
-package fr.ninauve.renaud.playground.fabulousadventures;
+package fr.ninauve.renaud.playground.fabulousadventures.queues;
 
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public sealed interface FabulousStack<T> extends Streamable<T> {

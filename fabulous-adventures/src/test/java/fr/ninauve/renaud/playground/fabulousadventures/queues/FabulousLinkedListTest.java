@@ -1,9 +1,8 @@
-package fr.ninauve.renaud.playground.fabulousadventures;
+package fr.ninauve.renaud.playground.fabulousadventures.queues;
 
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class FabulousLinkedListTest {
 

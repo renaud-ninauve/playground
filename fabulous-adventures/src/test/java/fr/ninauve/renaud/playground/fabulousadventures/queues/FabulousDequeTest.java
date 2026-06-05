@@ -1,9 +1,9 @@
-package fr.ninauve.renaud.playground.fabulousadventures;
+package fr.ninauve.renaud.playground.fabulousadventures.queues;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static fr.ninauve.renaud.playground.fabulousadventures.FabulousDeque.newDeque;
+import static fr.ninauve.renaud.playground.fabulousadventures.queues.FabulousDeque.newDeque;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

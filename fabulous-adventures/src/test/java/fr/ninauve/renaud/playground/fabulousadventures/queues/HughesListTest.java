@@ -1,11 +1,10 @@
-package fr.ninauve.renaud.playground.fabulousadventures;
+package fr.ninauve.renaud.playground.fabulousadventures.queues;
 
 import org.junit.jupiter.api.Test;
 
-import static fr.ninauve.renaud.playground.fabulousadventures.FabulousStackTest.stackOf;
-import static fr.ninauve.renaud.playground.fabulousadventures.HughesList.newHughes;
+import static fr.ninauve.renaud.playground.fabulousadventures.queues.FabulousStackTest.stackOf;
+import static fr.ninauve.renaud.playground.fabulousadventures.queues.HughesList.newHughes;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class HughesListTest {
     @Test
