@@ -42,30 +42,31 @@ public sealed interface Quad {
             return DEAD;
         }
         long w = width() / 4;
-        if (level() == 1) {
-            return northEast().get(new QuadPoint(0, 0));
-        }
         if (point.x() < 0) {
             final long newX = point.x() + w;
             if (point.y() < 0) {
                 // SW
                 final long newY = point.y() + w;
-                return southWest().get(new QuadPoint(newX, newY));
+                QuadPoint newPoint = level() == 1 ? new QuadPoint(0, 0) : new QuadPoint(newX, newY);
+                return southWest().get(newPoint);
             } else {
                 // NW
                 final long newY = point.y() - w;
-                return northWest().get(new QuadPoint(newX, newY));
+                QuadPoint newPoint = level() == 1 ? new QuadPoint(0, 0) : new QuadPoint(newX, newY);
+                return northWest().get(newPoint);
             }
         } else {
             final long newX = point.x() - w;
             if (point.y() < 0) {
                 // SE
                 final long newY = point.y() + w;
-                return southEast().get(new QuadPoint(newX, newY));
+                QuadPoint newPoint = level() == 1 ? new QuadPoint(0, 0) : new QuadPoint(newX, newY);
+                return southEast().get(newPoint);
             } else {
                 // NE
                 final long newY = point.y() - w;
-                return northEast().get(new QuadPoint(newX, newY));
+                QuadPoint newPoint = level() == 1 ? new QuadPoint(0, 0) : new QuadPoint(newX, newY);
+                return northEast().get(newPoint);
             }
         }
     }
@@ -84,38 +85,38 @@ public sealed interface Quad {
         Quad northEast = northEast();
         Quad southWest = southWest();
         Quad southEast = southEast();
-        if (level() == 1) {
-            northEast = quad;
-        } else {
-            long w = width() / 4;
-            if (point.x() < 0) {
-                final long newX = point.x() + w;
-                if (point.y() < 0) {
-                    // SW
-                    final long newY = point.y() + w;
-                    southWest = southWest.set(new QuadPoint(newX, newY), quad);
-                } else {
-                    // NW
-                    final long newY = point.y() - w;
-                    northWest = northWest.set(new QuadPoint(newX, newY), quad);
-                }
+        long w = width() / 4;
+        if (point.x() < 0) {
+            final long newX = point.x() + w;
+            if (point.y() < 0) {
+                // SW
+                final long newY = point.y() + w;
+                QuadPoint newPoint = level() == 1 ? new QuadPoint(0, 0) : new QuadPoint(newX, newY);
+                southWest = southWest.set(newPoint, quad);
             } else {
-                final long newX = point.x() - w;
-                if (point.y() < 0) {
-                    // SE
-                    final long newY = point.y() + w;
-                    southEast = southEast.set(new QuadPoint(newX, newY), quad);
-                } else {
-                    // NE
-                    final long newY = point.y() - w;
-                    northEast = northEast.set(new QuadPoint(newX, newY), quad);
-                }
+                // NW
+                final long newY = point.y() - w;
+                QuadPoint newPoint = level() == 1 ? new QuadPoint(0, 0) : new QuadPoint(newX, newY);
+                northWest = northWest.set(newPoint, quad);
+            }
+        } else {
+            final long newX = point.x() - w;
+            if (point.y() < 0) {
+                // SE
+                final long newY = point.y() + w;
+                QuadPoint newPoint = level() == 1 ? new QuadPoint(0, 0) : new QuadPoint(newX, newY);
+                southEast = southEast.set(newPoint, quad);
+            } else {
+                // NE
+                final long newY = point.y() - w;
+                QuadPoint newPoint = level() == 1 ? new QuadPoint(0, 0) : new QuadPoint(newX, newY);
+                northEast = northEast.set(newPoint, quad);
             }
         }
         return createQuad(northWest, northEast, southWest, southEast);
     }
 
-    record Leaf() implements Quad {
+    record Leaf(boolean isAlive) implements Quad {
 
         @Override
         public Quad northWest() {
@@ -148,8 +149,8 @@ public sealed interface Quad {
         }
     }
 
-    Quad DEAD = new Leaf();
-    Quad ALIVE = new Leaf();
+    Quad DEAD = new Leaf(false);
+    Quad ALIVE = new Leaf(true);
 
     int MAX_LEVEL = 64;
 
