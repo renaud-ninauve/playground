@@ -116,6 +116,21 @@ public sealed interface Quad {
         return createQuad(northWest, northEast, southWest, southEast);
     }
 
+    default Quad embiggen() {
+        if (level() == 0) {
+            throw new IllegalArgumentException();
+        }
+        if (level() >= MAX_LEVEL) {
+            return this;
+        }
+        Quad empty = createEmpty(level() - 1);
+        Quad nw = createQuad(empty, empty, empty, northWest());
+        Quad ne = createQuad(empty, empty, northEast(), empty);
+        Quad sw = createQuad(empty, southWest(), empty, empty);
+        Quad se = createQuad(southEast(), empty, empty, empty);
+        return createQuad(nw, ne, sw, se);
+    }
+
     record Leaf(boolean isAlive) implements Quad {
 
         @Override

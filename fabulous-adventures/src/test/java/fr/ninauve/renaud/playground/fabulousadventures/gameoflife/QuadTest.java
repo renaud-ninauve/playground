@@ -2,6 +2,11 @@ package fr.ninauve.renaud.playground.fabulousadventures.gameoflife;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import static fr.ninauve.renaud.playground.fabulousadventures.gameoflife.Quad.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,31 +50,106 @@ class QuadTest {
     @Test
     void should_set() {
         Quad quad = createEmpty(4);
-        QuadPoint quadPoint = new QuadPoint(5, -6);
-        Quad actual = quad.set(quadPoint, ALIVE);
-        assertThat(actual.get(quadPoint))
-                .isEqualTo(ALIVE);
-        assertThat(actual.get(new QuadPoint(1, 1)))
-                .isEqualTo(DEAD);
+        List<QuadPoint> alives = IntStream.range(-4, 4)
+                .boxed()
+                .flatMap(i -> Stream.of(
+                        new QuadPoint(i, 3),
+                        new QuadPoint(i, -4),
+                        new QuadPoint(-4, i),
+                        new QuadPoint(3, i)))
+                .toList();
 
-        Quad level3 = actual.southEast();
-        assertThat(level3.level()).isEqualTo(3);
-        assertThat(level3.get(new QuadPoint(1, -2)))
-                .isEqualTo(ALIVE);
+        for (QuadPoint alive : alives) {
+            quad = quad.set(alive, ALIVE);
+        }
 
-        Quad level2 = level3.southEast();
-        assertThat(level2.level()).isEqualTo(2);
-        assertThat(level2.get(new QuadPoint(-1, 0)))
-                .isEqualTo(ALIVE);
+        List<String> actual = new ArrayList<>();
+        for (int x = -8; x < 8; x++) {
+            StringBuilder sb = new StringBuilder();
+            for (int y = -8; y < 8; y++) {
+                QuadPoint point = new QuadPoint(x, y);
+                Quad actualLeaf = quad.get(point);
+                if (actualLeaf == ALIVE) {
+                    sb.append("1");
+                } else {
+                    sb.append("0");
+                }
+            }
+            actual.add(sb.toString());
+        }
 
-        Quad level1 = level2.northWest();
-        assertThat(level1.level()).isEqualTo(1);
-        assertThat(level1.get(new QuadPoint(0, -1)))
-                .isEqualTo(ALIVE);
+        assertThat(actual).containsExactlyElementsOf("""
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000111111110000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000111111110000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                """.lines().toList());
+    }
 
-        Quad level0 = level1.southEast();
-        assertThat(level0.level()).isEqualTo(0);
-        assertThat(level0.get(new QuadPoint(0, 0)))
-                .isEqualTo(ALIVE);
+    @Test
+    void should_embiggen() {
+        Quad quad = createEmpty(3);
+        List<QuadPoint> alives = IntStream.range(-4, 4)
+                .boxed()
+                .flatMap(i -> Stream.of(
+                        new QuadPoint(i, 3),
+                        new QuadPoint(i, -4),
+                        new QuadPoint(-4, i),
+                        new QuadPoint(3, i)))
+                .toList();
+
+        for (QuadPoint alive : alives) {
+            quad = quad.set(alive, ALIVE);
+        }
+
+        Quad actual = quad.embiggen();
+
+        assertThat(actual.level())
+                .isEqualTo(4);
+        List<String> actualLines = new ArrayList<>();
+        for (int x = -8; x < 8; x++) {
+            StringBuilder sb = new StringBuilder();
+            for (int y = -8; y < 8; y++) {
+                QuadPoint point = new QuadPoint(x, y);
+                Quad actualLeaf = actual.get(point);
+                if (actualLeaf == ALIVE) {
+                    sb.append("1");
+                } else {
+                    sb.append("0");
+                }
+            }
+            actualLines.add(sb.toString());
+        }
+
+        assertThat(actualLines).containsExactlyElementsOf("""
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000111111110000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000111111110000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                """.lines().toList());
     }
 }
