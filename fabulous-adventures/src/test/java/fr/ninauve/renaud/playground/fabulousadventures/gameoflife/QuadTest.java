@@ -64,20 +64,7 @@ class QuadTest {
             quad = set(quad, alive, ALIVE);
         }
 
-        List<String> actual = new ArrayList<>();
-        for (int x = -8; x < 8; x++) {
-            StringBuilder sb = new StringBuilder();
-            for (int y = -8; y < 8; y++) {
-                QuadPoint point = new QuadPoint(x, y);
-                Quad actualLeaf = get(quad, point);
-                if (actualLeaf == ALIVE) {
-                    sb.append("1");
-                } else {
-                    sb.append("0");
-                }
-            }
-            actual.add(sb.toString());
-        }
+        List<String> actual = print(quad);
 
         assertThat(actual).containsExactlyElementsOf("""
                 0000000000000000
@@ -120,20 +107,7 @@ class QuadTest {
         assertThat(actual.level())
                 .isEqualTo(4);
 
-        List<String> actualLines = new ArrayList<>();
-        for (int x = -8; x < 8; x++) {
-            StringBuilder sb = new StringBuilder();
-            for (int y = -8; y < 8; y++) {
-                QuadPoint point = new QuadPoint(x, y);
-                Quad actualLeaf = get(actual, point);
-                if (actualLeaf == ALIVE) {
-                    sb.append("1");
-                } else {
-                    sb.append("0");
-                }
-            }
-            actualLines.add(sb.toString());
-        }
+        List<String> actualLines = print(actual);
 
         assertThat(actualLines).containsExactlyElementsOf("""
                 0000000000000000
@@ -156,5 +130,58 @@ class QuadTest {
 
         assertThat(hasAllEmptyEdges(actual))
                 .isTrue();
+    }
+
+    @Test
+    void should_center() {
+        Quad quad = createEmpty(3);
+        List<QuadPoint> alives = IntStream.range(-4, 4)
+                .boxed()
+                .flatMap(i -> Stream.of(
+                        new QuadPoint(i, 3),
+                        new QuadPoint(i, -4),
+                        new QuadPoint(-4, i),
+                        new QuadPoint(3, i)))
+                .toList();
+
+        for (QuadPoint alive : alives) {
+            quad = set(quad, alive, ALIVE);
+        }
+
+        quad = embiggen(quad);
+
+        Quad actual = center(quad);
+
+        List<String> actualLines = print(actual);
+
+        assertThat(actualLines).containsExactlyElementsOf("""
+                11111111
+                10000001
+                10000001
+                10000001
+                10000001
+                10000001
+                10000001
+                11111111
+                """.lines().toList());
+    }
+
+    private List<String> print(Quad quad) {
+        long w = quad.width() / 2;
+        List<String> actualLines = new ArrayList<>();
+        for (long x = -w; x < w; x++) {
+            StringBuilder sb = new StringBuilder();
+            for (long y = -w; y < w; y++) {
+                QuadPoint point = new QuadPoint(x, y);
+                Quad actualLeaf = get(quad, point);
+                if (actualLeaf == ALIVE) {
+                    sb.append("1");
+                } else {
+                    sb.append("0");
+                }
+            }
+            actualLines.add(sb.toString());
+        }
+        return actualLines;
     }
 }

@@ -133,4 +133,12 @@ public final class Quads {
                 && quad.southWest().northWest().isEmpty()
                 && quad.northWest().southWest().isEmpty();
     }
+
+    public static Quad center(Quad quad) {
+        return createQuad(
+                quad.northWest().southEast(),
+                quad.northEast().southWest(),
+                quad.southWest().northEast(),
+                quad.southEast().northWest());
+    }
 }
