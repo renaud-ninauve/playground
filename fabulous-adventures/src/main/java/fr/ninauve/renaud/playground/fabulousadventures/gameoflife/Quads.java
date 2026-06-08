@@ -159,10 +159,20 @@ public final class Quads {
     }
 
     public static Quad east(Quad quad) {
-        return null;
+        return createQuad(
+                quad.northEast().southWest(),
+                quad.northEast().southEast(),
+                quad.southEast().northWest(),
+                quad.southEast().northEast());
     }
 
     public static Quad west(Quad quad) {
-        return null;
+        return createQuad(
+                quad.northWest().southWest(),
+                quad.northWest().southEast(),
+                quad.southWest().northWest(),
+                quad.southWest().northEast());
     }
+
+
 }

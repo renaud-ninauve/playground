@@ -154,6 +154,30 @@ class QuadTest {
                 """);
     }
 
+    @Test
+    void should_east() {
+        Quad actual = east(cross3());
+
+        assertQuad(actual, """
+                .X..
+                X...
+                X...
+                .X..
+                """);
+    }
+
+    @Test
+    void should_west() {
+        Quad actual = west(cross3());
+
+        assertQuad(actual, """
+                ..X.
+                ...X
+                ...X
+                ..X.
+                """);
+    }
+
     private Quad cross3() {
         return fromString("""
                 X......X
