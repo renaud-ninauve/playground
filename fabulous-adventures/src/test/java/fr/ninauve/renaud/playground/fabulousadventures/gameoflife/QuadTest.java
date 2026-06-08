@@ -4,13 +4,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static fr.ninauve.renaud.playground.fabulousadventures.gameoflife.Quad.*;
 import static fr.ninauve.renaud.playground.fabulousadventures.gameoflife.Quads.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class QuadTest {
 
@@ -50,138 +49,183 @@ class QuadTest {
 
     @Test
     void should_set() {
-        Quad quad = createEmpty(4);
-        List<QuadPoint> alives = IntStream.range(-4, 4)
-                .boxed()
-                .flatMap(i -> Stream.of(
-                        new QuadPoint(i, 3),
-                        new QuadPoint(i, -4),
-                        new QuadPoint(-4, i),
-                        new QuadPoint(3, i)))
-                .toList();
-
-        for (QuadPoint alive : alives) {
-            quad = set(quad, alive, ALIVE);
-        }
-
-        List<String> actual = print(quad);
-
-        assertThat(actual).containsExactlyElementsOf("""
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000111111110000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000111111110000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                """.lines().toList());
+        String square3 = """
+                XXXXXXXX
+                X......X
+                X......X
+                X......X
+                X......X
+                X......X
+                X......X
+                XXXXXXXX
+                """;
+        Quad quad = fromString(square3);
+        assertQuad(quad, square3);
     }
 
     @Test
     void should_embiggen() {
-        Quad actual = createEmpty(3);
-        List<QuadPoint> alives = IntStream.range(-4, 4)
-                .boxed()
-                .flatMap(i -> Stream.of(
-                        new QuadPoint(i, 3),
-                        new QuadPoint(i, -4),
-                        new QuadPoint(-4, i),
-                        new QuadPoint(3, i)))
-                .toList();
-
-        for (QuadPoint alive : alives) {
-            actual = set(actual, alive, ALIVE);
-        }
-
-        actual = embiggen(actual);
+        Quad actual = embiggen(square(3));
 
         assertThat(actual.level())
                 .isEqualTo(4);
 
-        List<String> actualLines = print(actual);
-
-        assertThat(actualLines).containsExactlyElementsOf("""
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000111111110000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000111111110000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                """.lines().toList());
+        assertQuad(actual, """
+                ................
+                ................
+                ................
+                ................
+                ....XXXXXXXX....
+                ....X......X....
+                ....X......X....
+                ....X......X....
+                ....X......X....
+                ....X......X....
+                ....X......X....
+                ....XXXXXXXX....
+                ................
+                ................
+                ................
+                ................
+                """);
 
         assertThat(hasAllEmptyEdges(actual))
                 .isTrue();
     }
 
     @Test
+    void should_test() {
+        Quad z3 = fromString("""
+                XXXXXXXX
+                ......X.
+                .....X..
+                ....X...
+                ...X....
+                ..X.....
+                .X......
+                XXXXXXXX
+                """);
+
+        assertQuad(z3, """
+                XXXXXXXX
+                ......X.
+                .....X..
+                ....X...
+                ...X....
+                ..X.....
+                .X......
+                XXXXXXXX
+                """);
+    }
+
+    @Test
     void should_center() {
-        Quad quad = createEmpty(3);
-        List<QuadPoint> alives = IntStream.range(-4, 4)
+        Quad actual = center(cross3());
+
+        assertQuad(actual, """
+                X..X
+                .XX.
+                .XX.
+                X..X
+                """);
+    }
+
+    @Test
+    void should_north() {
+        Quad actual = north(cross3());
+
+        assertQuad(actual, """
+                ....
+                ....
+                X..X
+                .XX.
+                """);
+    }
+
+    private Quad cross3() {
+        return fromString("""
+                X......X
+                .X....X.
+                ..X..X..
+                ...XX...
+                ...XX...
+                ..X..X..
+                .X....X.
+                X......X
+                """);
+    }
+
+    private Quad square(int level) {
+        Quad quad = createEmpty(level);
+        long w = quad.width() / 2;
+        List<QuadPoint> alives = LongStream.range(-w, w)
                 .boxed()
                 .flatMap(i -> Stream.of(
-                        new QuadPoint(i, 3),
-                        new QuadPoint(i, -4),
-                        new QuadPoint(-4, i),
-                        new QuadPoint(3, i)))
+                        new QuadPoint(i, w - 1),
+                        new QuadPoint(i, -w),
+                        new QuadPoint(-w, i),
+                        new QuadPoint(w - 1, i)))
                 .toList();
 
         for (QuadPoint alive : alives) {
             quad = set(quad, alive, ALIVE);
         }
+        return quad;
+    }
 
-        quad = embiggen(quad);
+    private Quad fromString(String str) {
+        List<String> lines = str.lines().toList().reversed();
+        long width = lines.getFirst().length();
+        int level = levelFromWidth(width);
+        Quad quad = createEmpty(level);
+        long w = width / 2;
+        for (long y = w-1; y >= -w; y--) {
+            String line = lines.get((int) (y + w));
+            for (long x = -w; x < w; x++) {
+                char c = line.charAt((int) (x + w));
+                QuadPoint point = new QuadPoint(x, y);
+                if (c == 'X') {
+                    quad = set(quad, point, ALIVE);
+                } else {
+                    quad = set(quad, point, DEAD);
+                }
+            }
+        }
+        return quad;
+    }
 
-        Quad actual = center(quad);
-
-        List<String> actualLines = print(actual);
-
-        assertThat(actualLines).containsExactlyElementsOf("""
-                11111111
-                10000001
-                10000001
-                10000001
-                10000001
-                10000001
-                10000001
-                11111111
-                """.lines().toList());
+    private int levelFromWidth(long width) {
+        long actual = width;
+        int level = 0;
+        while (actual != 1) {
+            level++;
+            actual = actual >> 1;
+        }
+        return level;
     }
 
     private List<String> print(Quad quad) {
         long w = quad.width() / 2;
         List<String> actualLines = new ArrayList<>();
-        for (long x = -w; x < w; x++) {
+        for (long y = w-1; y >= -w; y--) {
             StringBuilder sb = new StringBuilder();
-            for (long y = -w; y < w; y++) {
+            for (long x = -w; x < w; x++) {
                 QuadPoint point = new QuadPoint(x, y);
                 Quad actualLeaf = get(quad, point);
                 if (actualLeaf == ALIVE) {
-                    sb.append("1");
+                    sb.append("X");
                 } else {
-                    sb.append("0");
+                    sb.append(".");
                 }
             }
             actualLines.add(sb.toString());
         }
         return actualLines;
+    }
+
+    private void assertQuad(Quad actual, String expected) {
+        List<String> actualLines = print(actual);
+        assertThat(actualLines)
+                .containsExactlyElementsOf(expected.lines().toList());
     }
 }

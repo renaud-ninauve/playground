@@ -141,4 +141,24 @@ public final class Quads {
                 quad.southWest().northEast(),
                 quad.southEast().northWest());
     }
+
+    public static Quad north(Quad quad) {
+        return createQuad(
+                quad.northWest().northEast(),
+                quad.northEast().northWest(),
+                quad.northWest().southEast(),
+                quad.northEast().southWest());
+    }
+
+    public static Quad south(Quad quad) {
+        return null;
+    }
+
+    public static Quad east(Quad quad) {
+        return null;
+    }
+
+    public static Quad west(Quad quad) {
+        return null;
+    }
 }
