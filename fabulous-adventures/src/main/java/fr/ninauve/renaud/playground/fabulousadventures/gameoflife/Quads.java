@@ -173,6 +173,4 @@ public final class Quads {
                 quad.southWest().northWest(),
                 quad.southWest().northEast());
     }
-
-
 }
