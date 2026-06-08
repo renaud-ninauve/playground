@@ -151,7 +151,11 @@ public final class Quads {
     }
 
     public static Quad south(Quad quad) {
-        return null;
+        return createQuad(
+                quad.southWest().northEast(),
+                quad.southEast().northWest(),
+                quad.southWest().southEast(),
+                quad.southEast().southWest());
     }
 
     public static Quad east(Quad quad) {
