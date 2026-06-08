@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static fr.ninauve.renaud.playground.fabulousadventures.gameoflife.Quad.*;
+import static fr.ninauve.renaud.playground.fabulousadventures.gameoflife.Quads.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,8 +26,8 @@ class QuadTest {
     @Test
     void should_set_level_0() {
         QuadPoint quadPoint = new QuadPoint(0, 0);
-        Quad actual = DEAD.set(quadPoint, ALIVE);
-        assertThat(actual.get(quadPoint))
+        Quad actual = set(DEAD, quadPoint, ALIVE);
+        assertThat(get(actual, quadPoint))
                 .isEqualTo(ALIVE);
     }
 
@@ -34,8 +35,8 @@ class QuadTest {
     void should_set_level_1() {
         Quad quad = createEmpty(1);
         QuadPoint quadPoint = new QuadPoint(0, -1);
-        Quad actual = quad.set(quadPoint, ALIVE);
-        assertThat(actual.get(quadPoint))
+        Quad actual = set(quad, quadPoint, ALIVE);
+        assertThat(get(actual, quadPoint))
                 .isEqualTo(ALIVE);
         assertThat(actual.northWest())
                 .isEqualTo(DEAD);
@@ -60,7 +61,7 @@ class QuadTest {
                 .toList();
 
         for (QuadPoint alive : alives) {
-            quad = quad.set(alive, ALIVE);
+            quad = set(quad, alive, ALIVE);
         }
 
         List<String> actual = new ArrayList<>();
@@ -68,7 +69,7 @@ class QuadTest {
             StringBuilder sb = new StringBuilder();
             for (int y = -8; y < 8; y++) {
                 QuadPoint point = new QuadPoint(x, y);
-                Quad actualLeaf = quad.get(point);
+                Quad actualLeaf = get(quad, point);
                 if (actualLeaf == ALIVE) {
                     sb.append("1");
                 } else {
@@ -111,40 +112,49 @@ class QuadTest {
                 .toList();
 
         for (QuadPoint alive : alives) {
-            actual = actual.set(alive, ALIVE);
+            actual = set(actual, alive, ALIVE);
         }
 
-        actual = actual.embiggen();
+        actual = embiggen(actual);
 
         assertThat(actual.level())
                 .isEqualTo(4);
 
-        assertThat(actual.hasAllEmptyEdges())
-                .isTrue();
-    }
-
-    @Test
-    void should_has_all_empty_edges() {
-        Quad quad = createEmpty(3);
-        List<QuadPoint> alives = IntStream.range(-4, 4)
-                .boxed()
-                .flatMap(i -> Stream.of(
-                        new QuadPoint(i, 3),
-                        new QuadPoint(i, -4),
-                        new QuadPoint(-4, i),
-                        new QuadPoint(3, i)))
-                .toList();
-
-        for (QuadPoint alive : alives) {
-            quad = quad.set(alive, ALIVE);
+        List<String> actualLines = new ArrayList<>();
+        for (int x = -8; x < 8; x++) {
+            StringBuilder sb = new StringBuilder();
+            for (int y = -8; y < 8; y++) {
+                QuadPoint point = new QuadPoint(x, y);
+                Quad actualLeaf = get(actual, point);
+                if (actualLeaf == ALIVE) {
+                    sb.append("1");
+                } else {
+                    sb.append("0");
+                }
+            }
+            actualLines.add(sb.toString());
         }
 
-        assertThat(quad.hasAllEmptyEdges())
-                .isFalse();
+        assertThat(actualLines).containsExactlyElementsOf("""
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000111111110000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000100000010000
+                0000111111110000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                0000000000000000
+                """.lines().toList());
 
-        quad = quad.embiggen();
-
-        assertThat(quad.hasAllEmptyEdges())
+        assertThat(hasAllEmptyEdges(actual))
                 .isTrue();
     }
 }
