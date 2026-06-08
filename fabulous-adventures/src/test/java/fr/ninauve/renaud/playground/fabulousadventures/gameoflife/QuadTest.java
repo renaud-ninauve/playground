@@ -100,6 +100,31 @@ class QuadTest {
 
     @Test
     void should_embiggen() {
+        Quad actual = createEmpty(3);
+        List<QuadPoint> alives = IntStream.range(-4, 4)
+                .boxed()
+                .flatMap(i -> Stream.of(
+                        new QuadPoint(i, 3),
+                        new QuadPoint(i, -4),
+                        new QuadPoint(-4, i),
+                        new QuadPoint(3, i)))
+                .toList();
+
+        for (QuadPoint alive : alives) {
+            actual = actual.set(alive, ALIVE);
+        }
+
+        actual = actual.embiggen();
+
+        assertThat(actual.level())
+                .isEqualTo(4);
+
+        assertThat(actual.hasAllEmptyEdges())
+                .isTrue();
+    }
+
+    @Test
+    void should_has_all_empty_edges() {
         Quad quad = createEmpty(3);
         List<QuadPoint> alives = IntStream.range(-4, 4)
                 .boxed()
@@ -114,42 +139,12 @@ class QuadTest {
             quad = quad.set(alive, ALIVE);
         }
 
-        Quad actual = quad.embiggen();
+        assertThat(quad.hasAllEmptyEdges())
+                .isFalse();
 
-        assertThat(actual.level())
-                .isEqualTo(4);
-        List<String> actualLines = new ArrayList<>();
-        for (int x = -8; x < 8; x++) {
-            StringBuilder sb = new StringBuilder();
-            for (int y = -8; y < 8; y++) {
-                QuadPoint point = new QuadPoint(x, y);
-                Quad actualLeaf = actual.get(point);
-                if (actualLeaf == ALIVE) {
-                    sb.append("1");
-                } else {
-                    sb.append("0");
-                }
-            }
-            actualLines.add(sb.toString());
-        }
+        quad = quad.embiggen();
 
-        assertThat(actualLines).containsExactlyElementsOf("""
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000111111110000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000100000010000
-                0000111111110000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                0000000000000000
-                """.lines().toList());
+        assertThat(quad.hasAllEmptyEdges())
+                .isTrue();
     }
 }

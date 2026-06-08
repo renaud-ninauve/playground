@@ -131,6 +131,21 @@ public sealed interface Quad {
         return createQuad(nw, ne, sw, se);
     }
 
+    default boolean hasAllEmptyEdges() {
+        return northWest().northWest().isEmpty()
+                && northWest().northEast().isEmpty()
+                && northEast().northWest().isEmpty()
+                && northEast().northEast().isEmpty()
+                && northEast().southEast().isEmpty()
+                && southEast().northEast().isEmpty()
+                && southEast().southEast().isEmpty()
+                && southEast().southWest().isEmpty()
+                && southWest().southEast().isEmpty()
+                && southWest().southWest().isEmpty()
+                && southWest().northWest().isEmpty()
+                && northWest().southWest().isEmpty();
+    }
+
     record Leaf(boolean isAlive) implements Quad {
 
         @Override
@@ -185,7 +200,10 @@ public sealed interface Quad {
 
         @Override
         public boolean isEmpty() {
-            return this == DEAD;
+            return southWest().isEmpty()
+                    && southEast().isEmpty()
+                    && northWest().isEmpty()
+                    && northEast().isEmpty();
         }
     }
 
