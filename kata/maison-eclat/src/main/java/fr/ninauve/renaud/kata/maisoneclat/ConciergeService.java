@@ -1,5 +1,7 @@
 package fr.ninauve.renaud.kata.maisoneclat;
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -123,6 +125,7 @@ public class ConciergeService {
 
     public record QuoteLine(String description, BigDecimal amount) { }
 
+    @Builder
     public record Quote(
             String reference,
             String clientName,
