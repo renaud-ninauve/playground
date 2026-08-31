@@ -65,32 +65,24 @@ public class ConciergeService {
     var total = basePrice;
     var notes = new ArrayList<String>();
 
+    LuxuryProduct luxuryProduct = LuxuryProduct.ofType(productType);
+
     // Product-specific handling
-    switch (productType) {
-      case HANDBAG -> notes.add("Hand-finished leather inspection included");
-      case WATCH -> {
-        total = total.add(new BigDecimal("350.00"));
-        notes.add("Mechanical calibration included");
-      }
-      case FRAGRANCE -> {
-        total = total.add(new BigDecimal("25.00"));
-        notes.add("Personal fragrance consultation included");
-      }
-    }
+    total = total.add(luxuryProduct.additionalCost());
+    notes.add(luxuryProduct.includedNote());
 
     lineItems.add(new QuoteLine(productName, basePrice));
 
     // Optional services
     if (giftWrapping) {
-      var wrappingCost =
-          WATCH.equals(productType) ? new BigDecimal("45.00") : new BigDecimal("25.00");
+      var wrappingCost = luxuryProduct.wrappingCost();
 
       total = total.add(wrappingCost);
       lineItems.add(new QuoteLine("Signature gift wrapping", wrappingCost));
     }
 
     if (engraving) {
-      if (!WATCH.equals(productType) && !HANDBAG.equals(productType)) {
+      if (!luxuryProduct.engravingSupported()) {
         throw new IllegalArgumentException("Engraving is available only for watches and handbags");
       }
 
