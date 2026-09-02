@@ -2,6 +2,8 @@ package fr.ninauve.renaud.kata.maisoneclat;
 
 import fr.ninauve.renaud.kata.maisoneclat.additionalservices.*;
 import fr.ninauve.renaud.kata.maisoneclat.privileges.ClientTier;
+import fr.ninauve.renaud.kata.maisoneclat.privileges.ForAllClients;
+import fr.ninauve.renaud.kata.maisoneclat.privileges.Privilege;
 
 import static fr.ninauve.renaud.kata.maisoneclat.DestinationCountry.*;
 
@@ -75,22 +77,12 @@ public class ConciergeService {
     lineItems.addAll(quoteParts.lineItems());
     notes.addAll(quoteParts.notes());
 
-    // Privileges by client tier
-    switch (request.clientTier()) {
-      case ICON -> {
-        var privilege = total.multiply(new BigDecimal("0.15"));
-        total = total.subtract(privilege);
-        lineItems.add(new QuoteLine("Icon client privilege", privilege.negate()));
-        notes.add("Dedicated artisan follow-up");
-      }
-      case PRIVILEGE -> {
-        var privilege = total.multiply(new BigDecimal("0.08"));
-        total = total.subtract(privilege);
-        lineItems.add(new QuoteLine("Privilège client privilege", privilege.negate()));
-      }
-      default -> {
-        // no privilege
-      }
+    Optional<Privilege> privilegeOpt = new ForAllClients().forClientTiers(request.clientTier(), total);
+    if (privilegeOpt.isPresent()) {
+      Privilege privilege = privilegeOpt.get();
+      total = privilege.appliesDiscount(total);
+      lineItems.add(new QuoteLine(privilege.description(), privilege.discount()));
+      notes.addAll(privilege.notes());
     }
 
     // Regional tax
