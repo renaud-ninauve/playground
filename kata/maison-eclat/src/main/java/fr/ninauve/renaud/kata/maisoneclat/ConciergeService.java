@@ -1,15 +1,13 @@
 package fr.ninauve.renaud.kata.maisoneclat;
 
-import static fr.ninauve.renaud.kata.maisoneclat.ClientTier.*;
+import fr.ninauve.renaud.kata.maisoneclat.additionalservices.*;
+import fr.ninauve.renaud.kata.maisoneclat.privileges.ClientTier;
+
 import static fr.ninauve.renaud.kata.maisoneclat.DestinationCountry.*;
-import static fr.ninauve.renaud.kata.maisoneclat.ProductType.HANDBAG;
-import static fr.ninauve.renaud.kata.maisoneclat.ProductType.WATCH;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.Builder;
+import java.util.*;
 
 public class ConciergeService {
 
@@ -38,74 +36,47 @@ public class ConciergeService {
     if (!List.of("FRANCE", "ITALY", "JAPAN", "USA", "UAE").contains(destinationCountry)) {
       throw new IllegalArgumentException("Maison Éclat does not deliver to " + destinationCountry);
     }
-    return prepareQuote(
-        clientName,
-        ClientTier.valueOf(clientTier),
-        ProductType.valueOf(productType),
-        productName,
-        basePrice,
-        giftWrapping,
-        engraving,
-        privateDelivery,
-        DestinationCountry.valueOf(destinationCountry));
+    ProductType luxuryProductType = ProductType.valueOf(productType);
+    LuxuryProduct luxuryProduct = LuxuryProduct.ofType(luxuryProductType);
+    Set<AdditionalService> additionalServices = new TreeSet<>();
+    if (giftWrapping) {
+      additionalServices.add(AdditionalService.GIFT_WRAPPING);
+    }
+    if (engraving) {
+      additionalServices.add(AdditionalService.ENGRAVING);
+    }
+    if (privateDelivery) {
+      additionalServices.add(AdditionalService.PRIVATE_DELIVERY);
+    }
+    QuoteRequest request = new QuoteRequest(clientName,
+            ClientTier.valueOf(clientTier),
+            luxuryProduct,
+            productName,
+            basePrice,
+            additionalServices,
+            DestinationCountry.valueOf(destinationCountry));
+    return prepareQuote(request);
   }
 
-  public Quote prepareQuote(
-      String clientName,
-      ClientTier clientTier,
-      ProductType productType,
-      String productName,
-      BigDecimal basePrice,
-      boolean giftWrapping,
-      boolean engraving,
-      boolean privateDelivery,
-      DestinationCountry destinationCountry) {
+  public Quote prepareQuote(QuoteRequest request) {
 
     var lineItems = new ArrayList<QuoteLine>();
-    var total = basePrice;
+    var total = request.basePrice();
     var notes = new ArrayList<String>();
 
-    LuxuryProduct luxuryProduct = LuxuryProduct.ofType(productType);
+    total = total.add(request.luxuryProduct().additionalCost());
+    notes.add(request.luxuryProduct().includedNote());
 
-    // Product-specific handling
-    total = total.add(luxuryProduct.additionalCost());
-    notes.add(luxuryProduct.includedNote());
+    lineItems.add(new QuoteLine(request.productName(), request.basePrice()));
 
-    lineItems.add(new QuoteLine(productName, basePrice));
-
-    // Optional services
-    if (giftWrapping) {
-      var wrappingCost = luxuryProduct.wrappingCost();
-
-      total = total.add(wrappingCost);
-      lineItems.add(new QuoteLine("Signature gift wrapping", wrappingCost));
-    }
-
-    if (engraving) {
-      if (!luxuryProduct.engravingSupported()) {
-        throw new IllegalArgumentException("Engraving is available only for watches and handbags");
-      }
-
-      var engravingCost = new BigDecimal("80.00");
-      total = total.add(engravingCost);
-      lineItems.add(new QuoteLine("Personal engraving", engravingCost));
-    }
-
-    if (privateDelivery) {
-      var deliveryCost =
-          switch (destinationCountry) {
-            case FRANCE -> new BigDecimal("60.00");
-            case ITALY -> new BigDecimal("90.00");
-            case JAPAN, USA, UAE -> new BigDecimal("220.00");
-            default -> throw new IllegalArgumentException("Unsupported destination");
-          };
-
-      total = total.add(deliveryCost);
-      lineItems.add(new QuoteLine("White-glove private delivery", deliveryCost));
-    }
+    QuotePart quoteParts =
+        new AllServicesWriter().forRequest(request);
+    total = total.add(quoteParts.subTotal());
+    lineItems.addAll(quoteParts.lineItems());
+    notes.addAll(quoteParts.notes());
 
     // Privileges by client tier
-    switch (clientTier) {
+    switch (request.clientTier()) {
       case ICON -> {
         var privilege = total.multiply(new BigDecimal("0.15"));
         total = total.subtract(privilege);
@@ -123,11 +94,11 @@ public class ConciergeService {
     }
 
     // Regional tax
-    if (FRANCE.equals(destinationCountry) || ITALY.equals(destinationCountry)) {
+    if (FRANCE.equals(request.destinationCountry()) || ITALY.equals(request.destinationCountry())) {
       var tax = total.multiply(new BigDecimal("0.20"));
       total = total.add(tax);
       lineItems.add(new QuoteLine("VAT", tax));
-    } else if (JAPAN.equals(destinationCountry)) {
+    } else if (JAPAN.equals(request.destinationCountry())) {
       var tax = total.multiply(new BigDecimal("0.10"));
       total = total.add(tax);
       lineItems.add(new QuoteLine("Consumption tax", tax));
@@ -137,22 +108,13 @@ public class ConciergeService {
 
     var reference =
         "ME-"
-            + productType.name().substring(0, 2)
+            + request.luxuryProduct().productType().name().substring(0, 2)
             + "-"
-            + clientName.replaceAll("\\s+", "").toUpperCase()
+            + request.clientName().replaceAll("\\s+", "").toUpperCase()
             + "-"
             + System.currentTimeMillis();
 
-    return new Quote(reference, clientName, lineItems, total, notes);
+    return new Quote(reference, request.clientName(), lineItems, total, notes);
   }
 
-  public record QuoteLine(String description, BigDecimal amount) {}
-
-  @Builder
-  public record Quote(
-      String reference,
-      String clientName,
-      List<QuoteLine> lineItems,
-      BigDecimal total,
-      List<String> notes) {}
 }

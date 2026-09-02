@@ -4,7 +4,6 @@ import static fr.ninauve.renaud.kata.maisoneclat.TestGenerator.SCENARIOS_FILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import fr.ninauve.renaud.kata.maisoneclat.ConciergeService.Quote;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;

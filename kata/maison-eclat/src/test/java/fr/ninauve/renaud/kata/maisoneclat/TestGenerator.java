@@ -73,7 +73,7 @@ class TestGenerator {
   static Scenario generateScenario(PrepareQuoteArgs args) {
     ConciergeService conciergeService = new ConciergeService();
     try {
-      ConciergeService.Quote quote =
+      Quote quote =
           conciergeService.prepareQuote(
               args.clientName(),
               args.clientTier(),
