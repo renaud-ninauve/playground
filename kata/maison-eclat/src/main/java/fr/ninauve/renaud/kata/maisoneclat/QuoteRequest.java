@@ -1,6 +1,6 @@
 package fr.ninauve.renaud.kata.maisoneclat;
 
-import fr.ninauve.renaud.kata.maisoneclat.additionalservices.AdditionalService;
+import fr.ninauve.renaud.kata.maisoneclat.additionalservices.AdditionalServiceType;
 import fr.ninauve.renaud.kata.maisoneclat.privileges.ClientTier;
 
 import java.math.BigDecimal;
@@ -11,5 +11,5 @@ public record QuoteRequest(String clientName,
                            LuxuryProduct luxuryProduct,
                            String productName,
                            BigDecimal basePrice,
-                           Set<AdditionalService> additionalServices,
+                           Set<AdditionalServiceType> additionalServiceTypes,
                            DestinationCountry destinationCountry) {}

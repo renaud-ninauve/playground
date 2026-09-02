@@ -40,22 +40,22 @@ public class ConciergeService {
     }
     ProductType luxuryProductType = ProductType.valueOf(productType);
     LuxuryProduct luxuryProduct = LuxuryProduct.ofType(luxuryProductType);
-    Set<AdditionalService> additionalServices = new TreeSet<>();
+    Set<AdditionalServiceType> additionalServiceTypes = new TreeSet<>();
     if (giftWrapping) {
-      additionalServices.add(AdditionalService.GIFT_WRAPPING);
+      additionalServiceTypes.add(AdditionalServiceType.GIFT_WRAPPING);
     }
     if (engraving) {
-      additionalServices.add(AdditionalService.ENGRAVING);
+      additionalServiceTypes.add(AdditionalServiceType.ENGRAVING);
     }
     if (privateDelivery) {
-      additionalServices.add(AdditionalService.PRIVATE_DELIVERY);
+      additionalServiceTypes.add(AdditionalServiceType.PRIVATE_DELIVERY);
     }
     QuoteRequest request = new QuoteRequest(clientName,
             ClientTier.valueOf(clientTier),
             luxuryProduct,
             productName,
             basePrice,
-            additionalServices,
+            additionalServiceTypes,
             DestinationCountry.valueOf(destinationCountry));
     return prepareQuote(request);
   }
@@ -71,11 +71,12 @@ public class ConciergeService {
 
     lineItems.add(new QuoteLine(request.productName(), request.basePrice()));
 
-    QuotePart quoteParts =
-        new AllServicesWriter().forRequest(request);
-    total = total.add(quoteParts.subTotal());
-    lineItems.addAll(quoteParts.lineItems());
-    notes.addAll(quoteParts.notes());
+    List<AdditionalService> additionalServices =
+        new AdditionalServicesFactory().forRequest(request);
+    for(AdditionalService additionalService: additionalServices) {
+      total = total.add(additionalService.price());
+      lineItems.add(new QuoteLine(additionalService.description(), additionalService.price()));
+    }
 
     Optional<Privilege> privilegeOpt = new ForAllClients().forClientTiers(request.clientTier(), total);
     if (privilegeOpt.isPresent()) {
